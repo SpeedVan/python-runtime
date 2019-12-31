@@ -24,31 +24,23 @@ console_logger = logging.getLogger("__debug__")
 # func_logger = logging.getLogger("logger")
 extra_data = {}
 
-env_name = os.getenv("ENV_NAME", "")
+# env_name = os.getenv("ENV_NAME", "")
 
 def init(a:Flask):
-    # env_name = os.getenv("ENV_NAME", "__no_function_name__")
-    func_config = os.getenv("FUNC_CONFIG", "{}")
-    try:
-        func_json = json.loads(func_config)
-    except json.JSONDecodeError:
-        func_json = {}
-
-    a.config['func_json'] = func_json
     
     app_init_funcs(a)
     a.reqres_handler_chain.appendHandler(RequestIdHandler()).appendHandler(TraceIdHandler())
-    a.start_notify()
+    # a.start_notify()
 
 # =================构建app===================
 
 app = FlaskExtNetcat(FlaskExt(Flask(__name__)))
 
-@app.route('/<env_name>/<func_name>', methods=['POST'])
-def execute(env_name, func_name):
+@app.route('/', methods=['POST'])
+def execute():
     try:
         args = request.get_json()
-        func = app.config['func_cache'][func_name]
+        func = app.config['func']
         if func._type == "orginal":
             result = func(args)
         else:
@@ -61,46 +53,37 @@ def execute(env_name, func_name):
         console_logger.error(str(e))
         return json.dumps({"code":"error", "index":None, "msg":str(e)}), 500, {"Content-Type": "application/json; charset=utf-8"}
 
-@app.route('/<env_name>/<func_name>/params_struct', methods=['GET'])
-def params_struct(env_name, func_name):
-    func = app.config['func_cache'][func_name]
-    return func._params_struct
-
-@app.route('/<env_name>/<func_name>/result_struct', methods=['GET'])
-def result_struct(env_name, func_name):
-    func = app.config['func_cache'][func_name]
-    return func._result_struct
-
-# ================在没有支持多环境前使用的接口=================
-
-@app.route('/<func_name>', methods=['POST'])
-def default_env_execute(func_name):
-    return execute(env_name, func_name)
-
-@app.route('/<func_name>/params_struct', methods=['GET'])
-def default_env_params_struct(func_name):
-    return params_struct(env_name, func_name)
-
-@app.route('/<func_name>/result_struct', methods=['GET'])
-def default_env_result_struct(func_name):
-    return result_struct(env_name, func_name)
-
-# =================兼容旧router下通常接口==================
-
-@app.route('/', methods=['POST'])
-def old_execute():
-    func_name = request.headers.get("Function-Name", "")
-    return execute(env_name, func_name)
-
 @app.route('/params_struct', methods=['GET'])
-def old_params_struct(func_name):
-    func_name = request.headers.get("Function-Name", "")
-    return params_struct(env_name, func_name)
+def params_struct():
+    try:
+        func = app.config['func']
+        if func._type == "orginal":
+            result = {}
+        else:
+            result = func._params_struct
+        return result, 200, {"Content-Type": "application/json; charset=utf-8"}
+    except TypeError as e:
+        console_logger.error(str(e))
+        return str(e), 400, {"Content-Type": "application/json; charset=utf-8"}
+    except Exception as e:
+        console_logger.error(str(e))
+        return str(e), 500, {"Content-Type": "application/json; charset=utf-8"}
 
 @app.route('/result_struct', methods=['GET'])
-def old_result_struct(func_name):
-    func_name = request.headers.get("Function-Name", "")
-    return result_struct(env_name, func_name)
+def result_struct():
+    try:
+        func = app.config['func']
+        if func._type == "orginal":
+            result = {}
+        else:
+            result = func._result_struct
+        return result, 200, {"Content-Type": "application/json; charset=utf-8"}
+    except TypeError as e:
+        console_logger.error(str(e))
+        return str(e), 400, {"Content-Type": "application/json; charset=utf-8"}
+    except Exception as e:
+        console_logger.error(str(e))
+        return str(e), 500, {"Content-Type": "application/json; charset=utf-8"}
 
 # =================测试连通性及数据传达情况接口==============
 

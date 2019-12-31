@@ -6,18 +6,13 @@ from flask import Flask
 
 console_logger = logging.getLogger("__debug__")
 
-def app_init_funcs(app:Flask):
-    app.config['orginal_sys_path']=sys.path
-    app.config['func_cache']=load_funcs(app.config['orginal_sys_path'], app.config['func_json'])
-
-def load_funcs(orginal_sys_path,func_json:dict):
-
-    return dict(map(lambda kv:(kv[0],  load(orginal_sys_path, kv[1]["sys_path"], kv[1]["entrypoint"])) , func_json.items()))
+def app_init_funcs(app:Flask, sys_path, entrypoint):
+    app.config['func']=load(sys_path, entrypoint)
+    
 
 
-def load(orginal_sys_path, sys_path, entrypoint):
+def load(sys_path, entrypoint):
     # try: 注释try，达到只要有一个加载失败，外抛异常
-        sys.path=copy.copy(orginal_sys_path)
         sys.path.append(sys_path)
         moduleName, funcName = entrypoint.rsplit(".", 1)
         obj = __import__(moduleName, fromlist=funcName)

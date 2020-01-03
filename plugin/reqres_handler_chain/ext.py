@@ -11,6 +11,7 @@ def FlaskExt(app:Flask)->Flask:
     app.after_request_funcs.setdefault(None, []).append(app.reqres_handler_chain.doAfter)
         # super.__init__(**kvargs)
     return app
+
         
 
 # def appendReqresHander(self, h:Hander):

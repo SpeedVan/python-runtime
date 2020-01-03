@@ -6,6 +6,9 @@ from flask import Flask
 
 console_logger = logging.getLogger("__debug__")
 
+
+class FunctionLoader:
+
 def app_init_funcs(app:Flask):
     app.config['orginal_sys_path']=sys.path
     app.config['func_cache']=load_funcs(app.config['orginal_sys_path'], app.config['func_json'])

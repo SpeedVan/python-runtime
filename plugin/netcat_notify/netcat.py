@@ -1,8 +1,6 @@
 import socket
 
-from flask import Flask
-
-class Netcat:
+class Client:
 
     """ Netcat local client for notify """
     
@@ -30,25 +28,10 @@ class Netcat:
  
         return rval
  
-    def write(self, data):
+    def write(self, data:bytes):
         self.socket.send(data)
         return self
     
     def close(self):
         self.socket.close()
         return self
-
-def done():
-    nc = None
-    try:
-        nc = Netcat()
-        nc.write(b"done\n")
-    except Exception as e:
-        print(str(e))
-    finally:
-        if nc != None:
-            nc.close()
-
-def FlaskExtNetcat(app:Flask)->Flask:
-    app.start_notify = done
-    return app

@@ -11,8 +11,8 @@ class TraceIdHandler(Handler):
         return req
 
     def doAfter(self, res:Response)->Response:
-        res.headers.remove("Trace-Id")
-        res.headers.remove("X-Trace-Id")
-        res.headers.add("Trace-Id", self.trace_id)
+        # res.headers.remove("Trace-Id")
+        # res.headers.remove("X-Trace-Id")
+        # res.headers.add("Trace-Id", self.trace_id)
         res.headers.add("X-Trace-Id", self.trace_id)
         return res

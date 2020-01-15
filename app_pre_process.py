@@ -26,6 +26,7 @@ extra_data = {}
 
 env_name = os.getenv("ENV_NAME", "")
 
+
 class MyFlask(NCFeedbackPlugin, RequestResponseHandlerChainPlugin, FunctionLoaderPlugin, Flask):
     def __init__(self, module, config):
         Flask.__init__(self, module)
@@ -45,7 +46,8 @@ class MyFlask(NCFeedbackPlugin, RequestResponseHandlerChainPlugin, FunctionLoade
         self.load_function(config["ENTRYPOINT"])
         self.route("/", methods=["POST"])(self.execute)
         self.route("/test", methods=["POST"])(self.test)
-        self.reqres_handler_chain.appendHandler(RequestIdHandler()).appendHandler(TraceIdHandler())
+        self.reqres_handler_chain.appendHandler(
+            RequestIdHandler()).appendHandler(TraceIdHandler())
         self.notify_done(config["FREEBACK_CODE"])
 
     def execute(self):
@@ -53,31 +55,33 @@ class MyFlask(NCFeedbackPlugin, RequestResponseHandlerChainPlugin, FunctionLoade
             func = self.config["func"]
             args = request.get_json()
             # if func._type == "orginal":
-                # result = func(args)
+            # result = func(args)
             # else:
             result = func(**args)
             return str(result), 200, {"Content-Type": "application/json; charset=utf-8"}
         except TypeError as e:
             console_logger.error(str(e))
-            return str(result), 400, {"Content-Type": "application/json; charset=utf-8"}
+            return str(e), 400, {"Content-Type": "application/json; charset=utf-8"}
         except Exception as e:
             console_logger.error(str(e))
-            return str(result), 500, {"Content-Type": "application/json; charset=utf-8"}
+            return str(e), 500, {"Content-Type": "application/json; charset=utf-8"}
 
     def test(self):
-        header = dict(map(lambda i:(i[0],i[1]), request.headers.items()))
+        header = dict(map(lambda i: (i[0], i[1]), request.headers.items()))
         body_text = request.data.decode('utf-8')
         console_logger.debug(str(header))
         console_logger.debug(body_text)
         return body_text, 200, header
 
+
 if __name__ == '__main__':
     config = {
+        "BIND": "0.0.0.0:8888",
         "ENTRYPOINT": "/Users/admin/projects/go/src/github.com/SpeedVan/python-runtime/test_func/func_1.func",
 
         "FREEBACK_CODE": str(uuid.uuid4())
     }
     app = MyFlask(__name__, config)
-    app.config["SERVER_NAME"]="0.0.0.0:8888"
+    app.config["SERVER_NAME"] = config["BIND"]
     print(app.config)
     app.run(host='0.0.0.0', port='8888')

@@ -17,7 +17,7 @@ class NCFeedbackPlugin(Flask):
     def notify_done(self, msg):
         if self.initailized == True:    
             try:
-                self.nc.write(msg+"\n")
+                self.nc.write(str.encode(msg+"\n"))
             except Exception as e:
                 print(str(e))
             finally:

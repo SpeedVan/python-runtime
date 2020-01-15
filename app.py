@@ -11,10 +11,24 @@ import os
 import sys
 import json
 
+
 class StandaloneApplication(BaseApplication):
 
-    def __init__(self, application_class, module, config, options=None):
-        self.options = options or {}
+    options = {
+        'bind': '%s:%s' % ('0.0.0.0', os.getenv("PROXY_PORT", '8888')),
+        'workers': 1,
+        'threads': 1,
+        'timeout': 30,
+        'debug': True,
+        'backlog': 2048,
+        'env': "dev",
+        # "_ext_option":{}
+    }
+
+    def __init__(self, application_class, module, config):
+        self.options = {**self.options, **{key: value for key, value in config.items()
+                                           if key in self.options}}
+        # config.pop("bind")
         self.application = application_class(module, config)
         super().__init__()
 
@@ -36,18 +50,8 @@ class StandaloneApplication(BaseApplication):
 
 
 if __name__ == '__main__':
-    options = {
-        # 'bind': '%s:%s' % ('0.0.0.0', os.getenv("PROXY_PORT", '8888')),
-        'workers': 1,
-        'threads': 1,
-        'timeout': 30,
-        'debug': True,
-        'backlog': 2048,
-        'env': "dev",
-        # "_ext_option":{}
-    }
-    if len(sys.argv) > 2:
-        servername = sys.argv[1]
-        config = json.loads(sys.argv[2])
-        options["bind"] = servername
-        StandaloneApplication(app_pre_process.MyFlask, __name__, config, options).run()
+    if len(sys.argv) > 1:
+        # servername = sys.argv[1]
+        config = json.loads(sys.argv[1])
+        # options["bind"] = config["bind"]
+        StandaloneApplication(app_pre_process.MyFlask, __name__, config).run()

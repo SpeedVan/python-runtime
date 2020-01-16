@@ -51,6 +51,7 @@ class StandaloneApplication(BaseApplication):
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
+        print(sys.argv[1])
         # servername = sys.argv[1]
         config = json.loads(sys.argv[1])
         # options["bind"] = config["bind"]

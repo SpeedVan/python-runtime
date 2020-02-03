@@ -58,7 +58,10 @@ class MyFlask(NCFeedbackPlugin, RequestResponseHandlerChainPlugin, FunctionLoade
             # result = func(args)
             # else:
             result = func(**args)
-            return str(result), 200, {"Content-Type": "application/json; charset=utf-8"}
+            if isinstance(result, dict):
+                return json.dumps(result), 200, {"Content-Type": "application/json; charset=utf-8"}
+            else:
+                return str(result), 200, {"Content-Type": "application/text; charset=utf-8"}
         except TypeError as e:
             console_logger.error(str(e))
             return str(e), 400, {"Content-Type": "application/json; charset=utf-8"}

@@ -27,6 +27,17 @@ extra_data = {}
 env_name = os.getenv("ENV_NAME", "")
 
 
+class ExtEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Exception):
+            return str(obj)
+        elif isinstance(obj, datetime.datetime):
+            return obj.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        elif isinstance(obj, datetime.date):
+            return obj.strftime('%a, %d %b %Y %H:%M:%S GMT')
+        return json.JSONEncoder.default(self, obj)
+
+
 class MyFlask(NCFeedbackPlugin, RequestResponseHandlerChainPlugin, FunctionLoaderPlugin, Flask):
     def __init__(self, module, config):
         Flask.__init__(self, module)
@@ -59,7 +70,7 @@ class MyFlask(NCFeedbackPlugin, RequestResponseHandlerChainPlugin, FunctionLoade
             # else:
             result = func(**args)
             if isinstance(result, dict):
-                return json.dumps(result), 200, {"Content-Type": "application/json; charset=utf-8"}
+                return json.dumps(result, cls=ExtEncoder), 200, {"Content-Type": "application/json; charset=utf-8"}
             else:
                 return str(result), 200, {"Content-Type": "application/text; charset=utf-8"}
         except TypeError as e:

@@ -11,7 +11,7 @@ class RequestIdHandler(Handler):
             print("old RequestIdHandler.request_id:"+str(self.request_id))
         if hasattr(req, "X_Faas_Request_Id"):
             print(req.X_Faas_Request_Id)
-        self.request_id = uuid.uuid4()
+        self.request_id = req.headers.get("X-Faas-Request-Id", uuid.uuid4())
         # request.headers.remove("X-Request-Id")
         req.X_Faas_Request_Id = self.request_id
         return req

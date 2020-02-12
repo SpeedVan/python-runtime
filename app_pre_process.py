@@ -18,6 +18,7 @@ from plugin.netcat_notify import NCFeedbackPlugin
 from plugin.function_loader import FunctionLoaderPlugin
 from reqreshandler.request_id import RequestIdHandler
 from reqreshandler.trace_id import TraceIdHandler
+from reqreshandler.event_id import EventIdHandler
 
 logging.getLogger().setLevel(logging.DEBUG)
 console_logger = logging.getLogger("__debug__")
@@ -58,8 +59,8 @@ class MyFlask(NCFeedbackPlugin, RequestResponseHandlerChainPlugin, FunctionLoade
         self.load_function(config["ENTRYPOINT"])
         self.route("/", methods=["POST"])(self.execute)
         self.route("/test", methods=["POST"])(self.test)
-        self.reqres_handler_chain.appendHandler(
-            RequestIdHandler()).appendHandler(TraceIdHandler())
+        self.reqres_handler_chain.appendHandler(RequestIdHandler()).appendHandler(
+            TraceIdHandler()).appendHandler(EventIdHandler())
         self.notify_done(config["FREEBACK_CODE"])
 
     def execute(self):

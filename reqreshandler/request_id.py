@@ -7,16 +7,13 @@ from flask import Request, Response
 class RequestIdHandler(Handler):
 
     def doBefore(self, req: Request) -> Request:
-        if hasattr(self, "request_id"):
-            print("old RequestIdHandler.request_id:"+str(self.request_id))
-        if hasattr(req, "X_Faas_Request_Id"):
-            print(req.X_Faas_Request_Id)
-        self.request_id = req.headers.get("X-Faas-Request-Id", uuid.uuid4())
+        self.X_System_Request_Id = req.headers.get(
+            "X-System-Request-Id", uuid.uuid4())
         # request.headers.remove("X-Request-Id")
-        req.X_Faas_Request_Id = self.request_id
+        req.X_System_Request_Id = self.X_System_Request_Id
         return req
 
     def doAfter(self, res: Response) -> Response:
-        res.headers.remove("X-Faas-Request-Id")
-        res.headers.add("X-Faas-Request-Id", self.request_id)
+        res.headers.remove("X-System-Request-Id")
+        res.headers.add("X-System-Request-Id", self.X_System_Request_Id)
         return res

@@ -57,30 +57,29 @@ class MyFlask(NCFeedbackPlugin, RequestResponseHandlerChainPlugin, FunctionLoade
         # for k, v in config.items():
         #     self.config[k] = v
         self.load_function(config["ENTRYPOINT"])
-        self.route("/", methods=["POST"])(self.execute)
-        self.route("/test", methods=["POST"])(self.test)
+        self.config["func"](self)
         self.reqres_handler_chain.appendHandler(RequestIdHandler()).appendHandler(
             TraceIdHandler()).appendHandler(EventIdHandler())
         self.notify_done(config["FREEBACK_CODE"])
 
-    def execute(self):
-        try:
-            func = self.config["func"]
-            args = request.get_json()
-            # if func._type == "orginal":
-            # result = func(args)
-            # else:
-            result = func(**args)
-            if isinstance(result, dict):
-                return json.dumps(result, cls=ExtEncoder), 200, {"Content-Type": "application/json; charset=utf-8"}
-            else:
-                return str(result), 200, {"Content-Type": "application/text; charset=utf-8"}
-        except TypeError as e:
-            console_logger.error(str(e))
-            return str(e), 400, {"Content-Type": "application/json; charset=utf-8"}
-        except Exception as e:
-            console_logger.error(str(e))
-            return str(e), 500, {"Content-Type": "application/json; charset=utf-8"}
+    # def execute(self):
+    #     try:
+    #         func = self.config["func"]
+    #         args = request.get_json()
+    #         # if func._type == "orginal":
+    #         # result = func(args)
+    #         # else:
+    #         result = func(**args)
+    #         if isinstance(result, dict):
+    #             return json.dumps(result, cls=ExtEncoder), 200, {"Content-Type": "application/json; charset=utf-8"}
+    #         else:
+    #             return str(result), 200, {"Content-Type": "application/text; charset=utf-8"}
+    #     except TypeError as e:
+    #         console_logger.error(str(e))
+    #         return str(e), 400, {"Content-Type": "application/json; charset=utf-8"}
+    #     except Exception as e:
+    #         console_logger.error(str(e))
+    #         return str(e), 500, {"Content-Type": "application/json; charset=utf-8"}
 
     def test(self):
         header = dict(map(lambda i: (i[0], i[1]), request.headers.items()))

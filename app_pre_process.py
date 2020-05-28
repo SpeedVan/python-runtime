@@ -42,8 +42,8 @@ class ExtEncoder(json.JSONEncoder):
 
 class MyFlask(NCFeedbackPlugin, RequestResponseHandlerChainPlugin, FunctionLoaderPlugin, Flask):
     def __init__(self, module, config):
-        static_folder="/Users/admin/projects/github.com/SpeedVan/online-editor/build"
-        # static_folder="/userfunc/user/static"
+        # static_folder="/Users/admin/projects/github.com/SpeedVan/online-editor/build"
+        static_folder="/userfunc/user/static"
         Flask.__init__(self, module, static_url_path = "", static_folder =static_folder)
         NCFeedbackPlugin.__init__(self)
         FunctionLoaderPlugin.__init__(self)
@@ -60,12 +60,10 @@ class MyFlask(NCFeedbackPlugin, RequestResponseHandlerChainPlugin, FunctionLoade
         #     self.config[k] = v
         self.load_function(config["ENTRYPOINT"])
         self.route("/", methods=["GET"])(lambda:self.send_static_file("index.html"))
-        # self.config["func"](self)
-        print("ready 1")
+        self.config["func"](self)
         self.reqres_handler_chain.appendHandler(RequestIdHandler()).appendHandler(
             TraceIdHandler()).appendHandler(EventIdHandler())
         self.notify_done(config["FREEBACK_CODE"])
-        print("ready 2")
     # def execute(self):
     #     try:
     #         func = self.config["func"]

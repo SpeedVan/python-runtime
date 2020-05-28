@@ -61,10 +61,11 @@ class MyFlask(NCFeedbackPlugin, RequestResponseHandlerChainPlugin, FunctionLoade
         self.load_function(config["ENTRYPOINT"])
         self.route("/", methods=["GET"])(lambda:self.send_static_file("index.html"))
         # self.config["func"](self)
+        print("ready 1")
         self.reqres_handler_chain.appendHandler(RequestIdHandler()).appendHandler(
             TraceIdHandler()).appendHandler(EventIdHandler())
         self.notify_done(config["FREEBACK_CODE"])
-
+        print("ready 2")
     # def execute(self):
     #     try:
     #         func = self.config["func"]

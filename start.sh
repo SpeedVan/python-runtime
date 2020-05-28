@@ -2,4 +2,4 @@
 
 CUR_DIR=$(cd "$(dirname "${BASH_SOURCE-$0}")"; pwd)
 
-python3 ${CUR_DIR}/app.py $1
+PROXY_BUFFERSIZE=50 python ${CUR_DIR}/app.py "{\"bind\":\"0.0.0.0:5000\", \"ENTRYPOINT\": \"/Users/admin/projects/go/src/github.com/SpeedVan/python-runtime/test_func/func_1.func\", \"FREEBACK_CODE\":\"aaaaa\"}"

@@ -10,7 +10,7 @@ from inspect import signature
 from typing import NewType
 
 from flask_restful import Api
-from flask import Flask, request, jsonify, abort, g
+from flask import Flask, request, jsonify, abort, g, redirect
 from loggerconfig import setup_main_logger, setup_logger
 
 from plugin.reqres_handler_chain import RequestResponseHandlerChainPlugin
@@ -28,39 +28,19 @@ extra_data = {}
 
 env_name = os.getenv("ENV_NAME", "")
 
-
-class ExtEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, Exception):
-            return str(obj)
-        elif isinstance(obj, datetime.datetime):
-            return obj.strftime('%a, %d %b %Y %H:%M:%S GMT')
-        elif isinstance(obj, datetime.date):
-            return obj.strftime('%a, %d %b %Y %H:%M:%S GMT')
-        return json.JSONEncoder.default(self, obj)
-
-
 class MyFlask(NCFeedbackPlugin, RequestResponseHandlerChainPlugin, FunctionLoaderPlugin, Flask):
     def __init__(self, module, config):
         # static_folder="/Users/admin/projects/github.com/SpeedVan/online-editor/build"
         static_folder="/userfunc/user/static"
-        Flask.__init__(self, module, static_url_path = "", static_folder =static_folder)
+        Flask.__init__(self, module, static_url_path = "/call/", static_folder =static_folder)
         NCFeedbackPlugin.__init__(self)
         FunctionLoaderPlugin.__init__(self)
         RequestResponseHandlerChainPlugin.__init__(self)
-        # func_config = os.getenv("FUNC_CONFIG", "{}")
-        # try:
-        #     func_json = json.loads(func_config)
-        # except json.JSONDecodeError:
-        #     func_json = {}
-
-        # self.config['func_json'] = func_json
-        # app_init_funcs(a)
-        # for k, v in config.items():
-        #     self.config[k] = v
         self.load_function(config["ENTRYPOINT"])
-        self.route("/", methods=["GET"])(lambda:self.send_static_file("index.html"))
-        self.config["func"](self)
+        self.add_url_rule("/call", "call_redirect", lambda:redirect("/call/"))
+        self.add_url_rule("/manifest.json", "manifest_redirect", lambda:redirect("/call/manifest.json"))
+        self.route("/call/", methods=["GET"])(lambda:self.send_static_file("index.html"))
+        # self.config["func"](self)
         self.reqres_handler_chain.appendHandler(RequestIdHandler()).appendHandler(
             TraceIdHandler()).appendHandler(EventIdHandler())
         self.notify_done(config["FREEBACK_CODE"])

@@ -16,7 +16,7 @@ class StandaloneApplication(BaseApplication):
 
     options = {
         'bind': '%s:%s' % ('0.0.0.0', os.getenv("PROXY_PORT", '8888')),
-        'workers': int(int(os.getenv("PROXY_BUFFERSIZE"))/50),
+        'workers': int(int(os.getenv("PROXY_BUFFERSIZE"))/50) + 1,
         'threads': 1,
         'timeout': 30,
         'debug': True,
@@ -26,6 +26,7 @@ class StandaloneApplication(BaseApplication):
     }
 
     def __init__(self, application_class, module, config):
+        print("PROXY_BUFFERSIZE:",os.getenv("PROXY_BUFFERSIZE"),",worker:",self.options["workers"])
         self.options = {**self.options, **{key: value for key, value in config.items()
                                            if key in self.options}}
         # config.pop("bind")

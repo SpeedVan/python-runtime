@@ -37,8 +37,8 @@ class MyFlask(NCFeedbackPlugin, RequestResponseHandlerChainPlugin, FunctionLoade
         FunctionLoaderPlugin.__init__(self)
         RequestResponseHandlerChainPlugin.__init__(self)
         self.load_function(config["ENTRYPOINT"])
-        self.add_url_rule("/call", "call_redirect", lambda:redirect("/call/"))
-        self.add_url_rule("/manifest.json", "manifest_redirect", lambda:redirect("/call/manifest.json"))
+        self.add_url_rule("/call", "call_redirect", lambda:self.send_static_file("self.html"))
+        # self.add_url_rule("/manifest.json", "manifest_redirect", lambda:redirect("/call/manifest.json"))
         self.route("/call/", methods=["GET"])(lambda:self.send_static_file("index.html"))
         # self.config["func"](self)
         self.reqres_handler_chain.appendHandler(RequestIdHandler()).appendHandler(
